@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "axios": "^1.15.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "viem": "^2.48.11"
+  }
+}
