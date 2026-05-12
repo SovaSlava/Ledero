@@ -81,11 +81,11 @@ contract CompoundV3Adapter is ILendingAdapter {
     {
         IComet comet = IComet(pool);
         uint256 borrowAmount = comet.borrowBalanceOf(user);
-        if (borrowAmount == 0) return type(uint256).max; // Здоровье бесконечное
+        if (borrowAmount == 0) return type(uint256).max; 
 
         address basePriceFeed = comet.baseTokenPriceFeed();
         uint256 borrowPrice = comet.getPrice(basePriceFeed);
-        uint256 baseScale = comet.baseScale(); // 1e18 для WETH, 1e6 для USDC
+        uint256 baseScale = comet.baseScale(); 
 
         uint256 debtValueUSD = (borrowAmount * borrowPrice) / baseScale;
         if (debtValueUSD == 0) return type(uint256).max;

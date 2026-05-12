@@ -5,7 +5,7 @@ import {Test, console} from "forge-std/Test.sol";
 import {LeverageMath} from "../../src/libraries/LeverageMath.sol";
 
 contract LeverageMathFuzzTest is Test {
-function testFuzz_CalcSafeBorrowAmount_Invariants(
+function testFuzz_CalcSafeBorrowAmount(
         uint256 collateralAmount,
         uint256 ltv,
         uint256 colDecimals,
@@ -39,7 +39,7 @@ function testFuzz_CalcSafeBorrowAmount_Invariants(
         assertTrue(isValid, "Safety margin applied incorrectly due to math truncation");
     }
 
-    function testFuzz_CalcFlashLoanAmount_Precision(uint256 collateralAmount, uint256 desiredLeverage) public {
+    function testFuzz_CalcFlashLoanAmount(uint256 collateralAmount, uint256 desiredLeverage) public {
         collateralAmount = bound(collateralAmount, 100e6, 1_000_000e6);
         desiredLeverage = bound(desiredLeverage, 15000, 100000);
 

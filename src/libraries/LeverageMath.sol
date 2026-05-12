@@ -17,7 +17,8 @@ library LeverageMath {
     function calcFlashLoanAmount(uint256 collateralAmount, uint256 desiredLeverage) internal pure returns (uint256) {
         if (collateralAmount == 0) revert ZeroCollateral();
         if (desiredLeverage <= LEVERAGE_PRECISION) revert InvalidLeverage();
-
+        // Flashloan amount = (collateralAmount * desiredLeverage) - collateralAmount
+        // Flashloan amount = collateralAmount * (desiredLeverage - 1)
         return (collateralAmount * (desiredLeverage - LEVERAGE_PRECISION)) / LEVERAGE_PRECISION;
     }
 
