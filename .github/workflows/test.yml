@@ -32,4 +32,4 @@ jobs:
         run: forge build --sizes
 
       - name: Run Forge tests
-        run: forge test --match-path "test/unit/**/*.t.sol" -vvv
+        run: forge test --match-path "test/unit/*" -vvv
