@@ -9,6 +9,7 @@ import {ConstantsEtMainnet} from "../Constants.t.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {AaveV3Adapter} from "../../src/adapters/lendings/AaveV3.sol";
 import {MockERC20} from "../mock/MockERC20.sol";
 import {MockBalancer} from "../mock/MockBalancer.sol";
 import {BalancerV3Adapter} from "../../src/adapters/loan/BalancerV3.sol";
@@ -31,6 +32,24 @@ contract LederoUnitTest is Test, LederoBase {
     Mock1InchRouter public mockRouter;
     MockBalancer public mockVault;
 
+    function _deployOracle() internal override {
+        oracle = new LederoOracle();
+    }
+
+    function _setupPermissions() internal override {
+        ledero.transferOwnership(owner);
+        vm.startPrank(owner);
+        ledero.acceptOwnership();
+        vm.stopPrank();
+    }
+
+    function _deployLendingAdapters() internal override {
+        MockLendingAdapter tempAave = new MockLendingAdapter();
+        MockLendingAdapter tempCompound = new MockLendingAdapter();
+        aaveAdapter = AaveV3Adapter(_etchToVanity(address(tempAave), LENDING_PREFIX, 1));
+        compoundAdapter = CompoundV3Adapter(_etchToVanity(address(tempCompound), LENDING_PREFIX, 2));
+    }
+
     function _deployFlashAndSwapAdapters() internal override {
         mockRouter = new Mock1InchRouter();
         mockVault = new MockBalancer();
@@ -41,6 +60,8 @@ contract LederoUnitTest is Test, LederoBase {
         OneInchAdapter tempSwap = new OneInchAdapter(address(mockRouter), address(ledero));
         swapAdapter = OneInchAdapter(_etchToVanity(address(tempSwap), SWAP_PREFIX, 100));
     }
+
+    function _setupFork() internal override { }
 
     function setUp() public override {
         super.setUp();
@@ -160,7 +181,7 @@ contract LederoUnitTest is Test, LederoBase {
         UnwindPositionParams memory params = _getDefaultUnwindPositionParams();
 
         deal(address(tokenA), address(mockVault), 1 ether);
-        bytes memory innerError = abi.encodeWithSignature("ERC20InvalidSpender(address)", address(0));
+        bytes memory innerError = abi.encodeWithSignature("PoolIsZero()");
 
         vm.expectRevert(abi.encodeWithSelector(AdapterExecutionFailed.selector, innerError));
         vm.prank(owner);
@@ -249,7 +270,7 @@ contract LederoUnitTest is Test, LederoBase {
         );
         vm.mockCall(address(compoundAdapter), exactCallData, abi.encode());
 
-        bytes memory innerError = abi.encodeWithSignature("ERC20InvalidSpender(address)", address(0));
+        bytes memory innerError = abi.encodeWithSignature("PoolIsZero()");
 
         vm.expectRevert(abi.encodeWithSelector(AdapterExecutionFailed.selector, innerError));
         ledero.migratePosition(params);
@@ -276,7 +297,7 @@ contract LederoUnitTest is Test, LederoBase {
         ledero.migratePosition(params);
     }
 
-    function test_RevertIf_Migration4SupplyToFail() public {
+    function test_RevertIf_MigrationSupplyToFail() public {
         deal(address(tokenA), address(mockVault), 1 ether);
         deal(address(tokenB), address(ledero), 1 ether);
 
@@ -294,7 +315,7 @@ contract LederoUnitTest is Test, LederoBase {
         );
         vm.mockCall(address(compoundAdapter), exactCallData, abi.encode());
 
-        bytes memory innerError = abi.encodeWithSignature("ERC20InvalidSpender(address)", address(0));
+        bytes memory innerError = abi.encodeWithSignature("PoolIsZero()");
 
         vm.expectRevert(abi.encodeWithSelector(AdapterExecutionFailed.selector, innerError));
 

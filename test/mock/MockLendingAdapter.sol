@@ -22,4 +22,14 @@ contract MockLendingAdapter {
     ) external {
         require(pool != address(0), PoolIsZero());
     }
+
+     function repayAndWithdraw(
+        address pool,
+        address collateralToken,
+        uint256 collateralToWithdraw,
+        address debtToken,
+        uint256 debtAmount
+    ) external  {
+        require(pool != address(0), PoolIsZero());
+    }
 }
