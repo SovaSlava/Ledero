@@ -88,7 +88,7 @@ contract CompoundV3Adapter is ILendingAdapter {
         uint256 baseScale = comet.baseScale(); 
 
         uint256 debtValueUSD = (borrowAmount * borrowPrice) / baseScale;
-        if (debtValueUSD == 0) return type(uint256).max;
+        if (debtValueUSD == 0 || debtValueUSD < 1000) return type(uint256).max;
 
         uint256 colBalance = comet.collateralBalanceOf(user, collateralAsset);
         IComet.AssetInfo memory assetInfo = comet.getAssetInfoByAddress(collateralAsset);
