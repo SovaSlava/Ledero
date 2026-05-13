@@ -3,7 +3,7 @@ pragma solidity 0.8.35;
 
 import {Test} from "forge-std/Test.sol";
 import {OneInchAdapter} from "../../src/adapters/swap/OneInch.sol";
-import {Mock1InchRouter} from "../mock/Mock1inchRouter.sol";
+import {Mock1InchRouter} from "../mock/Mock1InchRouter.sol";
 import {MockERC20} from "../mock/MockERC20.sol";
 
 contract OneInchAdapterTest is Test {
