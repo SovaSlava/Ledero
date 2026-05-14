@@ -51,7 +51,7 @@ contract CompoundV3Adapter is ILendingAdapter {
 
     function getLTV(address pool, address collateralToken) external view override returns (uint256) {
         IComet.AssetInfo memory assetInfo = IComet(pool).getAssetInfoByAddress(collateralToken);
-
+        // LTV * BPS / WAD
         return (uint256(assetInfo.borrowCollateralFactor) * 10000) / 1e18;
     }
 
@@ -70,7 +70,7 @@ contract CompoundV3Adapter is ILendingAdapter {
         external
         override
     {
-        // shouldAccrue = true
+        // shouldAccrue = true (recalculate rewards)
         ICometRewards(rewardContract).claimTo(pool, address(this), to, true);
     }
 
@@ -86,16 +86,16 @@ contract CompoundV3Adapter is ILendingAdapter {
         address basePriceFeed = comet.baseTokenPriceFeed();
         uint256 borrowPrice = comet.getPrice(basePriceFeed);
         uint256 baseScale = comet.baseScale(); 
-
+        // Debt in USD
         uint256 debtValueUSD = (borrowAmount * borrowPrice) / baseScale;
         if (debtValueUSD == 0 || debtValueUSD < 1000) return type(uint256).max;
 
         uint256 colBalance = comet.collateralBalanceOf(user, collateralAsset);
         IComet.AssetInfo memory assetInfo = comet.getAssetInfoByAddress(collateralAsset);
         uint256 colPrice = comet.getPrice(assetInfo.priceFeed);
-
+        // Collateral in USD
         uint256 colValueUSD = (colBalance * colPrice) / assetInfo.scale;
-
+        // Max debt in USD = Collateral in USD * LT
         uint256 maxDebtCapacityUSD = (colValueUSD * assetInfo.liquidateCollateralFactor) / 1e18;
 
         return (maxDebtCapacityUSD * 1e18) / debtValueUSD;
