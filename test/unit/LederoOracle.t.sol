@@ -9,30 +9,30 @@ contract LederoOracleTest is Test {
     LederoOracle oracle;
     MockPriceFeed mockPriceFeed;
 
-    address weth = address(0x111);
+    address wbtc = address(0x111);
 
     function setUp() public {
         oracle = new LederoOracle();
 
-        mockPriceFeed = new MockPriceFeed(3000e8);
-        oracle.setPriceFeed(weth, address(mockPriceFeed), 3600);
+        mockPriceFeed = new MockPriceFeed(80_000e8);
+        oracle.setPriceFeed(wbtc, address(mockPriceFeed), 3600);
     }
 
     function test_GetPrice() public {
-        mockPriceFeed.setRoundData(3000e8, block.timestamp);
+        mockPriceFeed.setRoundData(80_000e8, block.timestamp);
 
-        uint256 currentPrice = oracle.getPrice(weth);
-        assertEq(currentPrice, 3000e8);
+        uint256 currentPrice = oracle.getPrice(wbtc);
+        assertEq(currentPrice, 80_000e8);
     }
 
     function test_SetPriceFeeds() public {
         address[] memory tokens = new address[](2);
-        tokens[0] = address(0x111); // WETH mock address
+        tokens[0] = address(0x111); // WBTC mock address
         tokens[1] = address(0x222); // USDC mock address
 
         address[] memory feeds = new address[](2);
         feeds[0] = address(mockPriceFeed);
-        MockPriceFeed mockPriceFeed2 = new MockPriceFeed(3000e8);
+        MockPriceFeed mockPriceFeed2 = new MockPriceFeed(80_000e8);
         feeds[1] = address(mockPriceFeed2);
 
         uint256[] memory heartbeats = new uint256[](2);
@@ -42,32 +42,32 @@ contract LederoOracleTest is Test {
         oracle.setPriceFeeds(tokens, feeds, heartbeats);
 
         uint256 currentPrice = oracle.getPrice(tokens[0]);
-        assertEq(currentPrice, 3000e8);
+        assertEq(currentPrice, 80_000e8);
     }
 
     function test_RevertIf_PriceIsZeroOrNegative() public {
         mockPriceFeed.setRoundData(-100, block.timestamp);
 
         vm.expectRevert(LederoOracle.InvalidPrice.selector);
-        oracle.getPrice(weth);
+        oracle.getPrice(wbtc);
 
         mockPriceFeed.setRoundData(0, block.timestamp);
         vm.expectRevert(LederoOracle.InvalidPrice.selector);
-        oracle.getPrice(weth);
+        oracle.getPrice(wbtc);
     }
 
     function test_RevertIf_StalePrice() public {
         vm.warp(100 days);
         uint256 oldTimestamp = block.timestamp - 2 days;
-        mockPriceFeed.setRoundData(3000e8, oldTimestamp);
+        mockPriceFeed.setRoundData(80_000e8, oldTimestamp);
         vm.expectRevert(LederoOracle.StalePrice.selector);
-        oracle.getPrice(weth);
+        oracle.getPrice(wbtc);
     }
 
     function test_RevertIf_IncompleteRound() public {
-        mockPriceFeed.setRoundData(3000e8, 0);
+        mockPriceFeed.setRoundData(80_000e8, 0);
         vm.expectRevert(LederoOracle.RoundIncomplete.selector);
-        oracle.getPrice(weth);
+        oracle.getPrice(wbtc);
     }
 
     function test_RevertIf_SourceNotSet() public {
@@ -86,14 +86,14 @@ contract LederoOracleTest is Test {
     function test_RevertIf_DecimalsIsNot8() public {
         mockPriceFeed.setDecimals(20);
         vm.expectRevert(LederoOracle.UnsupportDecimals.selector);
-        oracle.setPriceFeed(weth, address(mockPriceFeed), 3600);
+        oracle.setPriceFeed(wbtc, address(mockPriceFeed), 3600);
     }
 
     function test_RevertIf_StaleRound() public {
         mockPriceFeed.setRoundIds(2, 1);
 
         vm.expectRevert(LederoOracle.StaleRound.selector);
-        oracle.getPrice(weth);
+        oracle.getPrice(wbtc);
     }
 
     function test_RevertIf_SetPriceFeeds_IncorrectLength() public {

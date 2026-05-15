@@ -60,7 +60,7 @@ abstract contract LederoBase is Test, ConstantsEtMainnet {
     function _deployOracle() internal virtual {
         oracle = new LederoOracle();
         oracle.setPriceFeed(USDC, USDC_PRICE_FEED, 86400);
-        oracle.setPriceFeed(WETH, WETH_PRICE_FEED, 3600);
+        oracle.setPriceFeed(WBTC, WBTC_PRICE_FEED, 86400);
     }
 
     function _deployCore() internal virtual {
@@ -96,7 +96,7 @@ abstract contract LederoBase is Test, ConstantsEtMainnet {
         vm.startPrank(owner);
         ledero.acceptOwnership();
         IERC20(USDC).approve(address(ledero), type(uint256).max);
-        IERC20(WETH).approve(address(ledero), type(uint256).max);
+        IERC20(WBTC).approve(address(ledero), type(uint256).max);
         vm.stopPrank();
     }
 

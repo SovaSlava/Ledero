@@ -60,16 +60,16 @@ contract LederoHandler is Test, ConstantsEtMainnet {
         uint256 desiredLeverage = bound(rawLeverage, 15000, 50000);
         slippageBps = bound(slippageBps, 10, 500);
 
-        deal(USDC, address(this), collateralAmount);
-        IERC20(USDC).approve(address(ledero), collateralAmount);
+        deal(WBTC, address(this), collateralAmount);
+        IERC20(WBTC).approve(address(ledero), collateralAmount);
 
         (uint256 flashLoanAmount, uint256 borrowAmount,) = quoter.calculateOpenParams(
             LederoQuoter.QuoteOpenParams({
                 lendingAdapter: address(aaveAdapter),
                 lendingPool: AAVE_POOL,
                 flashAdapter: address(balancerAdapter),
-                collateralToken: USDC,
-                borrowToken: WETH,
+                collateralToken: WBTC,
+                borrowToken: USDC,
                 desiredLeverage: desiredLeverage,
                 collateralAmount: collateralAmount,
                 collateralTokenPrice: 0,
@@ -81,14 +81,14 @@ contract LederoHandler is Test, ConstantsEtMainnet {
         uint256 minReturnAmount = (expectedAmount * (10000 - slippageBps)) / 10000;
 
         bytes memory mockSwapData =
-            abi.encodeWithSelector(Mock1InchRouter.swap.selector, WETH, USDC, expectedAmount, address(ledero));
+            abi.encodeWithSelector(Mock1InchRouter.swap.selector, WBTC, USDC, expectedAmount, address(ledero));
 
         OpenPositionParams memory params = OpenPositionParams({
             lendingPool: AAVE_POOL,
             collateralAmount: collateralAmount,
-            collateralToken: USDC,
+            collateralToken: WBTC,
             borrowAmount: borrowAmount,
-            borrowToken: WETH,
+            borrowToken: USDC,
             flashLoanAmount: flashLoanAmount,
             lendingAdapter: address(aaveAdapter),
             minReturnAmount: minReturnAmount,
@@ -109,7 +109,7 @@ contract LederoHandler is Test, ConstantsEtMainnet {
     function userAction_unwindPositionAave(uint256 rawDebtPercentage, uint256 slippageBps) public {
         if (!isPositionOpen || activeProtocol != 1) return;
 
-        uint256 currentDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), WETH);
+        uint256 currentDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), WBTC);
         if (currentDebt == 0) return;
 
         uint256 percent = bound(rawDebtPercentage, 1, 10000);
@@ -119,21 +119,21 @@ contract LederoHandler is Test, ConstantsEtMainnet {
         slippageBps = bound(slippageBps, 10, 500);
 
         uint256 collateralToWithdraw = LeverageMath.calcCollateralToWithdraw(
-            debtToRepay, oracle.getPrice(USDC), oracle.getPrice(WETH), 6, 18, slippageBps
+            debtToRepay, oracle.getPrice(USDC), oracle.getPrice(WBTC), 6, 18, slippageBps
         );
 
         if (percent == 10000) collateralToWithdraw = type(uint256).max;
 
-        uint256 totalFlashRepay = IFlashLoanAdapter(address(balancerAdapter)).getFullRepayAmount(WETH, debtToRepay);
+        uint256 totalFlashRepay = IFlashLoanAdapter(address(balancerAdapter)).getFullRepayAmount(WBTC, debtToRepay);
 
         bytes memory mockSwapData =
-            abi.encodeWithSelector(Mock1InchRouter.swap.selector, USDC, WETH, totalFlashRepay, address(ledero));
+            abi.encodeWithSelector(Mock1InchRouter.swap.selector, USDC, WBTC, totalFlashRepay, address(ledero));
 
         UnwindPositionParams memory params = UnwindPositionParams({
             lendingAdapter: address(aaveAdapter),
             lendingPool: AAVE_POOL,
-            collateralToken: USDC,
-            debtToken: WETH,
+            collateralToken: WBTC,
+            debtToken: USDC,
             collateralToWithdraw: collateralToWithdraw,
             debtToRepay: debtToRepay,
             minReturnAmount: totalFlashRepay,
@@ -158,16 +158,16 @@ contract LederoHandler is Test, ConstantsEtMainnet {
         uint256 desiredLeverage = bound(rawLeverage, 15000, 50000);
         slippageBps = bound(slippageBps, 10, 500);
 
-        deal(USDC, address(this), collateralAmount);
-        IERC20(USDC).approve(address(ledero), collateralAmount);
+        deal(WBTC, address(this), collateralAmount);
+        IERC20(WBTC).approve(address(ledero), collateralAmount);
 
         (uint256 flashLoanAmount, uint256 borrowAmount,) = quoter.calculateOpenParams(
             LederoQuoter.QuoteOpenParams({
                 lendingAdapter: address(compoundAdapter),
-                lendingPool: COMPOUND_WETH_COMET,
+                lendingPool: COMPOUND_USDC_COMET,
                 flashAdapter: address(balancerAdapter),
-                collateralToken: USDC,
-                borrowToken: WETH,
+                collateralToken: WBTC,
+                borrowToken: USDC,
                 desiredLeverage: desiredLeverage,
                 collateralAmount: collateralAmount,
                 collateralTokenPrice: 0,
@@ -179,14 +179,14 @@ contract LederoHandler is Test, ConstantsEtMainnet {
         uint256 minReturnAmount = (expectedAmount * (10000 - slippageBps)) / 10000;
 
         bytes memory mockSwapData =
-            abi.encodeWithSelector(Mock1InchRouter.swap.selector, WETH, USDC, expectedAmount, address(ledero));
+            abi.encodeWithSelector(Mock1InchRouter.swap.selector, WBTC, USDC, expectedAmount, address(ledero));
 
         OpenPositionParams memory params = OpenPositionParams({
-            lendingPool: COMPOUND_WETH_COMET,
+            lendingPool: COMPOUND_USDC_COMET,
             collateralAmount: collateralAmount,
-            collateralToken: USDC,
+            collateralToken: WBTC,
             borrowAmount: borrowAmount,
-            borrowToken: WETH,
+            borrowToken: USDC,
             flashLoanAmount: flashLoanAmount,
             lendingAdapter: address(compoundAdapter),
             minReturnAmount: minReturnAmount,
@@ -207,7 +207,7 @@ contract LederoHandler is Test, ConstantsEtMainnet {
     function userAction_unwindPositionCompound(uint256 rawDebtPercentage, uint256 slippageBps) public {
         if (!isPositionOpen || activeProtocol != 2) return;
 
-        uint256 currentDebt = compoundAdapter.getDebtAmount(COMPOUND_WETH_COMET, address(ledero), WETH);
+        uint256 currentDebt = compoundAdapter.getDebtAmount(COMPOUND_USDC_COMET, address(ledero), WBTC);
         if (currentDebt == 0) return;
 
         uint256 percent = bound(rawDebtPercentage, 1, 10000);
@@ -217,21 +217,21 @@ contract LederoHandler is Test, ConstantsEtMainnet {
         slippageBps = bound(slippageBps, 10, 500);
 
         uint256 collateralToWithdraw = LeverageMath.calcCollateralToWithdraw(
-            debtToRepay, oracle.getPrice(USDC), oracle.getPrice(WETH), 6, 18, slippageBps
+            debtToRepay, oracle.getPrice(USDC), oracle.getPrice(WBTC), 6, 18, slippageBps
         );
 
         if (percent == 10000) collateralToWithdraw = type(uint256).max;
 
-        uint256 totalFlashRepay = IFlashLoanAdapter(address(balancerAdapter)).getFullRepayAmount(WETH, debtToRepay);
+        uint256 totalFlashRepay = IFlashLoanAdapter(address(balancerAdapter)).getFullRepayAmount(WBTC, debtToRepay);
 
         bytes memory mockSwapData =
-            abi.encodeWithSelector(Mock1InchRouter.swap.selector, USDC, WETH, totalFlashRepay, address(ledero));
+            abi.encodeWithSelector(Mock1InchRouter.swap.selector, USDC, WBTC, totalFlashRepay, address(ledero));
 
         UnwindPositionParams memory params = UnwindPositionParams({
             lendingAdapter: address(compoundAdapter),
-            lendingPool: COMPOUND_WETH_COMET,
-            collateralToken: USDC,
-            debtToken: WETH,
+            lendingPool: COMPOUND_USDC_COMET,
+            collateralToken: WBTC,
+            debtToken: USDC,
             collateralToWithdraw: collateralToWithdraw,
             debtToRepay: debtToRepay,
             minReturnAmount: totalFlashRepay,

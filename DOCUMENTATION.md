@@ -191,4 +191,8 @@ The project uses Foundry and relies on Ethereum Mainnet forks to test against re
 ```bash
 # Run fork tests
 forge test --mp test/fork/Ledero.t.sol --rpc-url $ETH_RPC_URL 
+# Run unit tests
+forge test --match-path "test/unit/*" 
+# Run fuzzing tests
+forge test --mp test/fuzzing/LeverageMath.t.sol
 ```

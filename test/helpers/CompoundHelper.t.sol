@@ -17,10 +17,10 @@ abstract contract CompoundHelper is LederoBase, FfiHelper {
         (uint256 flashLoanAmount, uint256 borrowAmount,) = quoter.calculateOpenParams(
             LederoQuoter.QuoteOpenParams({
                 lendingAdapter: address(compoundAdapter),
-                lendingPool: COMPOUND_WETH_COMET,
+                lendingPool: COMPOUND_USDC_COMET,
                 flashAdapter: address(balancerAdapter),
-                collateralToken: address(USDC),
-                borrowToken: address(WETH),
+                collateralToken: address(WBTC),
+                borrowToken: address(USDC),
                 desiredLeverage: 30_000,
                 collateralAmount: collateralAmount,
                 collateralTokenPrice: 0,
@@ -29,15 +29,15 @@ abstract contract CompoundHelper is LederoBase, FfiHelper {
         );
 
         (bytes memory swapData, uint256 expectedAmount) =
-            get1inchSwapData(address(WETH), address(USDC), borrowAmount, address(ledero));
+            get1inchSwapData(address(USDC), address(WBTC), borrowAmount, address(ledero));
 
-        deal(address(USDC), owner, collateralAmount);
+        deal(address(WBTC), owner, collateralAmount);
 
         OpenPositionParams memory openParams = OpenPositionParams({
             lendingAdapter: address(compoundAdapter),
-            lendingPool: COMPOUND_WETH_COMET,
-            collateralToken: address(USDC),
-            borrowToken: address(WETH),
+            lendingPool: COMPOUND_USDC_COMET,
+            collateralToken: address(WBTC),
+            borrowToken: address(USDC),
             collateralAmount: collateralAmount,
             flashLoanAmount: flashLoanAmount,
             borrowAmount: borrowAmount,
@@ -56,23 +56,23 @@ abstract contract CompoundHelper is LederoBase, FfiHelper {
         (uint256 collateralToWithdraw, uint256 debtAmount,) = quoter.calculateUnwindParams(
             LederoQuoter.QuoteUnwindParams({
                 lendingAdapter: address(compoundAdapter),
-                lendingPool: COMPOUND_WETH_COMET,
+                lendingPool: COMPOUND_USDC_COMET,
                 flashAdapter: address(balancerAdapter),
-                collateralToken: address(USDC),
-                debtToken: address(WETH),
+                collateralToken: address(WBTC),
+                debtToken: address(USDC),
                 user: address(ledero),
                 slippageBps: 200 // 2% slippage
             })
         );
 
         (bytes memory unwindSwapData, uint256 expectedUnwindReturn) =
-            get1inchSwapData(address(USDC), address(WETH), collateralToWithdraw, address(ledero));
+            get1inchSwapData(address(WBTC), address(USDC), collateralToWithdraw, address(ledero));
 
         UnwindPositionParams memory unwindParams = UnwindPositionParams({
             lendingAdapter: address(compoundAdapter),
-            lendingPool: COMPOUND_WETH_COMET,
-            collateralToken: address(USDC),
-            debtToken: address(WETH),
+            lendingPool: COMPOUND_USDC_COMET,
+            collateralToken: address(WBTC),
+            debtToken: address(USDC),
             collateralToWithdraw: collateralToWithdraw,
             debtToRepay: debtAmount,
             minReturnAmount: (expectedUnwindReturn * 99) / 100,
@@ -83,20 +83,20 @@ abstract contract CompoundHelper is LederoBase, FfiHelper {
         });
 
         uint256 usdcBefore = IERC20(address(USDC)).balanceOf(owner);
-        uint256 wethBefore = IERC20(address(WETH)).balanceOf(owner);
+        uint256 wbtcBefore = IERC20(address(WBTC)).balanceOf(owner);
         vm.prank(owner);
         ledero.unwindPosition(unwindParams);
         uint256 usdcAfter = IERC20(address(USDC)).balanceOf(owner);
-        uint256 wethAfter = IERC20(address(WETH)).balanceOf(owner);
+        uint256 wbtcAfter = IERC20(address(WBTC)).balanceOf(owner);
 
         assertTrue(
-            usdcAfter > usdcBefore || wethAfter > wethBefore,
+            usdcAfter > usdcBefore || wbtcAfter > wbtcBefore,
             "Compound Unwind: User should receive leftovers from swap dust"
         );
     }
 
     function _helperGetDebtCompound(address _user) internal view returns (uint256) {
-        return IComet(COMPOUND_WETH_COMET).borrowBalanceOf(_user);
+        return IComet(COMPOUND_USDC_COMET).borrowBalanceOf(_user);
     }
 
     /**
@@ -105,38 +105,16 @@ abstract contract CompoundHelper is LederoBase, FfiHelper {
      * @param _collateralAsset Collateral asset
      */
     function _verifyPositionCompound(address _user, address _collateralAsset) internal view {
-        uint256 compDebt = IComet(COMPOUND_WETH_COMET).borrowBalanceOf(_user);
-        uint256 compCollateral = IComet(COMPOUND_WETH_COMET).collateralBalanceOf(_user, _collateralAsset);
+        uint256 compDebt = IComet(COMPOUND_USDC_COMET).borrowBalanceOf(_user);
+        uint256 compCollateral = IComet(COMPOUND_USDC_COMET).collateralBalanceOf(_user, _collateralAsset);
 
         assertTrue(compCollateral > 0, "Compound: Should have collateral");
         assertTrue(compDebt > 0, "Compound: Should have debt (leverage not created)");
 
         uint256 healthFactor = ILendingAdapter(address(compoundAdapter))
-            .getPositionHealthFactor(COMPOUND_WETH_COMET, _user, _collateralAsset);
+            .getPositionHealthFactor(COMPOUND_USDC_COMET, _user, _collateralAsset);
 
         assertTrue(healthFactor > 1e18, "Compound: Position created underwater! (HF <= 1.0)");
     }
 
-    function _helperFixWETHCompound() internal {
-        (bool successCheck, bytes memory isPausedData) =
-            COMPOUND_WETH_COMET.staticcall(abi.encodeWithSignature("isWithdrawPaused()"));
-        require(successCheck, "Failed to check pause status");
-
-        bool isPaused = abi.decode(isPausedData, (bool));
-
-        if (isPaused) {
-            (bool successGov, bytes memory govData) =
-                COMPOUND_WETH_COMET.staticcall(abi.encodeWithSignature("governor()"));
-            require(successGov, "Failed to get governor");
-            address governor = abi.decode(govData, (address));
-
-            vm.startPrank(governor);
-
-            (bool successPause,) = COMPOUND_WETH_COMET.call(
-                abi.encodeWithSignature("pause(bool,bool,bool,bool,bool)", false, false, false, false, false)
-            );
-            require(successPause, "Failed to unpause Compound");
-            vm.stopPrank();
-        }
-    }
 }

@@ -20,7 +20,7 @@ contract LederoQuoterTest is Test {
     LederoQuoter quoter;
     MockLendingAdapter lendingAdapter;
     MockBalancer flashAdapter;
-    MockToken weth;
+    MockToken wbtc;
     MockToken usdc;
     address dummyPool = address(0x111);
 
@@ -30,7 +30,7 @@ contract LederoQuoterTest is Test {
 
         lendingAdapter = new MockLendingAdapter();
         flashAdapter = new MockBalancer();
-        weth = new MockToken(18);
+        wbtc = new MockToken(18);
         usdc = new MockToken(6);
     }
 
@@ -40,7 +40,7 @@ contract LederoQuoterTest is Test {
             flashAdapter: address(flashAdapter),
             lendingPool: dummyPool,
             collateralToken: address(usdc),
-            borrowToken: address(weth),
+            borrowToken: address(wbtc),
             desiredLeverage: 30000,
             collateralAmount: 100e6,
             collateralTokenPrice: 0,
@@ -57,7 +57,7 @@ contract LederoQuoterTest is Test {
             flashAdapter: address(flashAdapter),
             lendingPool: dummyPool,
             collateralToken: address(usdc),
-            debtToken: address(weth),
+            debtToken: address(wbtc),
             user: address(0xDEAD), // return 0
             slippageBps: 100
         });
@@ -85,7 +85,7 @@ contract LederoQuoterTest is Test {
             flashAdapter: address(flashAdapter),
             lendingPool: dummyPool,
             collateralToken: badToken,
-            borrowToken: address(weth),
+            borrowToken: address(wbtc),
             desiredLeverage: 30000,
             collateralAmount: 100e6,
             collateralTokenPrice: 1e8,

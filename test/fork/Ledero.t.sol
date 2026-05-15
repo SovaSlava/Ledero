@@ -11,8 +11,7 @@ import {IComet} from "../../src/interfaces/external/ICompound.sol";
 
 contract LederoForkTest is LederoHelper {
     function test_OpenAndUnwindPosition_Aave() public {
-        _helperFixWETHAAVE();
-        _helperOpenPositionAave(1000e6);
+        _helperOpenPositionAave(0.1e8);
 
         uint256 debtBeforeUnwind = _helperGetDebtAAVE(address(ledero));
         assertTrue(debtBeforeUnwind > 0, "Debt should exist before unwind");
@@ -25,8 +24,7 @@ contract LederoForkTest is LederoHelper {
     }
 
     function test_OpenAndUnwindPosition_Compound() public {
-        _helperFixWETHCompound();
-        _helperOpenPositionCompound(1000e6);
+        _helperOpenPositionCompound(0.1e8);
 
         uint256 debtBeforeUnwind = _helperGetDebtCompound(address(ledero));
         assertTrue(debtBeforeUnwind > 0, "Compound: Debt should exist before unwind");
@@ -49,7 +47,7 @@ contract LederoForkTest is LederoHelper {
 
         vm.prank(owner);
         ledero.claimProtocolRewards(
-            address(aaveAdapter), AAVE_POOL, address(USDC), address(WETH), address(mockController), owner
+            address(aaveAdapter), AAVE_POOL, address(USDC), address(WBTC), address(mockController), owner
         );
 
         uint256 balanceAfter = IERC20(AAVE_TOKEN).balanceOf(owner);
@@ -72,7 +70,7 @@ contract LederoForkTest is LederoHelper {
         vm.prank(owner);
 
         ledero.claimProtocolRewards(
-            address(compoundAdapter), dummyCometPool, address(USDC), address(WETH), address(mockController), owner
+            address(compoundAdapter), dummyCometPool, address(USDC), address(WBTC), address(mockController), owner
         );
 
         uint256 balanceAfter = IERC20(COMP_TOKEN).balanceOf(owner);
@@ -82,28 +80,26 @@ contract LederoForkTest is LederoHelper {
     }
 
     function test_Migrate_Aave_To_CompoundV3() public {
-        uint256 collateralAmount = 1000e6; // 1000 USDC
+        uint256 collateralAmount = 0.1e8; // 0.1 WBTC
 
-        _helperFixWETHAAVE();
-        _helperFixWETHCompound();
         _helperOpenPositionAave(collateralAmount);
 
         IAaveV3Pool.ReserveData memory usdcData = IAaveV3Pool(AAVE_POOL).getReserveData(address(USDC));
-        IAaveV3Pool.ReserveData memory wethData = IAaveV3Pool(AAVE_POOL).getReserveData(address(WETH));
+        IAaveV3Pool.ReserveData memory wbtcData = IAaveV3Pool(AAVE_POOL).getReserveData(address(WBTC));
 
-        uint256 fullColToMigrate = IERC20(usdcData.aTokenAddress).balanceOf(address(ledero));
-        uint256 fullDebtToMigrate = IERC20(wethData.variableDebtTokenAddress).balanceOf(address(ledero));
+        uint256 fullColToMigrate = IERC20(wbtcData.aTokenAddress).balanceOf(address(ledero));
+        uint256 fullDebtToMigrate = IERC20(usdcData.variableDebtTokenAddress).balanceOf(address(ledero));
 
         assertTrue(fullDebtToMigrate > 0, "Aave position not opened");
 
         MigrationParams memory migParams = MigrationParams({
-            collateralToken: address(USDC),
+            collateralToken: address(WBTC),
             collateralAmount: fullColToMigrate,
-            debtToken: address(WETH),
+            debtToken: address(USDC),
             debtAmount: fullDebtToMigrate,
             fromPool: AAVE_POOL,
             minCollateralToSupply: (fullColToMigrate * 99) / 100,
-            toPool: COMPOUND_WETH_COMET,
+            toPool: COMPOUND_USDC_COMET,
             lendingAdapterFrom: address(aaveAdapter),
             lendingAdapterTo: address(compoundAdapter),
             flashAdapter: address(balancerAdapter),
@@ -116,7 +112,7 @@ contract LederoForkTest is LederoHelper {
         uint256 aaveDebtAfter = _helperGetDebtAAVE(address(ledero));
         assertApproxEqAbs(aaveDebtAfter, 0, 10, "Aave debt should be cleared");
 
-        uint256 compCollateral = IComet(COMPOUND_WETH_COMET).collateralBalanceOf(address(ledero), address(USDC));
+        uint256 compCollateral = IComet(COMPOUND_USDC_COMET).collateralBalanceOf(address(ledero), address(WBTC));
         assertTrue(compCollateral > collateralAmount, "Compound missing leveraged collateral");
 
         uint256 compDebt = _helperGetDebtCompound(address(ledero));
@@ -124,23 +120,21 @@ contract LederoForkTest is LederoHelper {
     }
 
     function test_Migrate_CompoundV3_To_Aave() public {
-        uint256 collateralAmount = 1000e6;
+        uint256 collateralAmount = 0.1e8;
 
-        _helperFixWETHCompound();
-        _helperFixWETHAAVE();
         _helperOpenPositionCompound(collateralAmount);
 
-        uint256 fullColToMigrate = IComet(COMPOUND_WETH_COMET).collateralBalanceOf(address(ledero), address(USDC));
+        uint256 fullColToMigrate = IComet(COMPOUND_USDC_COMET).collateralBalanceOf(address(ledero), address(WBTC));
         uint256 fullDebtToMigrate = _helperGetDebtCompound(address(ledero));
 
         assertTrue(fullDebtToMigrate > 0, "Compound position not opened");
 
         MigrationParams memory migParams = MigrationParams({
-            collateralToken: address(USDC),
+            collateralToken: address(WBTC),
             collateralAmount: fullColToMigrate,
-            debtToken: address(WETH),
+            debtToken: address(USDC),
             debtAmount: fullDebtToMigrate,
-            fromPool: COMPOUND_WETH_COMET,
+            fromPool: COMPOUND_USDC_COMET,
             minCollateralToSupply: (fullColToMigrate * 99) / 100,
             toPool: AAVE_POOL,
             lendingAdapterFrom: address(compoundAdapter),
@@ -155,7 +149,7 @@ contract LederoForkTest is LederoHelper {
         uint256 compDebtAfter = _helperGetDebtCompound(address(ledero));
         assertApproxEqAbs(compDebtAfter, 0, 10, "Compound debt should be cleared");
 
-        uint256 compColAfter = IComet(COMPOUND_WETH_COMET).collateralBalanceOf(address(ledero), address(USDC));
+        uint256 compColAfter = IComet(COMPOUND_USDC_COMET).collateralBalanceOf(address(ledero), address(WBTC));
         assertEq(compColAfter, 0, "Compound collateral should be withdrawn");
 
         _verifyPositionAave(address(ledero));

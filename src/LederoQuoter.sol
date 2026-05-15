@@ -22,8 +22,8 @@ contract LederoQuoter {
         address lendingAdapter; // Address of the lending adapter (e.g., AaveV3Adapter)
         address flashAdapter; // Address of the flash loan adapter (e.g., BalancerV2Adapter)
         address lendingPool; // Address of the lending liquidity pool (e.g., Aave Pool)
-        address collateralToken; // Token supplied by the user as margin (e.g., USDC)
-        address borrowToken; // Token borrowed from the lending protocol for leverage (e.g., WETH)
+        address collateralToken; // Token supplied by the user as margin (e.g., WBTC)
+        address borrowToken; // Token borrowed from the lending protocol for leverage (e.g., USDC)
         uint256 desiredLeverage; // Target leverage multiplied (e.g., 3e18 for 3x)
         uint256 collateralAmount; // User's initial margin amount (in collateral token decimals)
         uint256 collateralTokenPrice; // Collateral price (8 decimals); set to 0 to fetch from oracle
@@ -37,8 +37,8 @@ contract LederoQuoter {
         address lendingAdapter; // Address of the lending adapter to repay the debt
         address flashAdapter; // Address of the flash loan adapter to cover the debt
         address lendingPool; // Address of the pool where the position is open
-        address collateralToken; // Collateral token to be withdrawn (e.g., USDC)
-        address debtToken; // Debt token to be repaid (e.g., WETH)
+        address collateralToken; // Collateral token to be withdrawn (e.g., WBTC)
+        address debtToken; // Debt token to be repaid (e.g., USDC)
         address user; // Address of the user's specific Beacon Proxy
         uint256 slippageBps; // Buffer for swap slippage in basis points (e.g., 100 = 1%)
     }

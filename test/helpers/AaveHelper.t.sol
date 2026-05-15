@@ -18,8 +18,8 @@ abstract contract AaveHelper is LederoBase, FfiHelper {
                 lendingAdapter: address(aaveAdapter),
                 lendingPool: AAVE_POOL,
                 flashAdapter: address(balancerAdapter),
-                collateralToken: address(USDC),
-                borrowToken: address(WETH),
+                collateralToken: address(WBTC),
+                borrowToken: address(USDC),
                 desiredLeverage: 30_000,
                 collateralAmount: collateralAmount,
                 collateralTokenPrice: 0,
@@ -28,15 +28,15 @@ abstract contract AaveHelper is LederoBase, FfiHelper {
         );
 
         (bytes memory swapData, uint256 expectedAmount) =
-            get1inchSwapData(address(WETH), address(USDC), borrowAmount, address(ledero));
+            get1inchSwapData(address(USDC), address(WBTC), borrowAmount, address(ledero));
 
-        deal(address(USDC), owner, collateralAmount);
+        deal(address(WBTC), owner, collateralAmount);
 
         OpenPositionParams memory openParams = OpenPositionParams({
             lendingPool: AAVE_POOL,
             lendingAdapter: address(aaveAdapter),
-            collateralToken: address(USDC),
-            borrowToken: address(WETH),
+            collateralToken: address(WBTC),
+            borrowToken: address(USDC),
             collateralAmount: collateralAmount,
             flashLoanAmount: flashLoanAmount,
             borrowAmount: borrowAmount,
@@ -59,21 +59,21 @@ abstract contract AaveHelper is LederoBase, FfiHelper {
                 lendingAdapter: address(aaveAdapter),
                 lendingPool: AAVE_POOL,
                 flashAdapter: address(balancerAdapter),
-                collateralToken: address(USDC),
-                debtToken: address(WETH),
+                collateralToken: address(WBTC),
+                debtToken: address(USDC),
                 user: address(ledero),
                 slippageBps: 200 // 2% slippage
             })
         );
 
         (bytes memory unwindSwapData, uint256 expectedUnwindReturn) =
-            get1inchSwapData(address(USDC), address(WETH), collateralToWithdraw, address(ledero));
+            get1inchSwapData(address(WBTC), address(USDC), collateralToWithdraw, address(ledero));
 
         UnwindPositionParams memory unwindParams = UnwindPositionParams({
             lendingAdapter: address(aaveAdapter),
             lendingPool: AAVE_POOL,
-            collateralToken: address(USDC),
-            debtToken: address(WETH),
+            collateralToken: address(WBTC),
+            debtToken: address(USDC),
             collateralToWithdraw: collateralToWithdraw,
             debtToRepay: debtAmount,
             minReturnAmount: (expectedUnwindReturn * 99) / 100, // 1% slippage protection
@@ -84,13 +84,13 @@ abstract contract AaveHelper is LederoBase, FfiHelper {
         });
 
         uint256 usdcBefore = IERC20(address(USDC)).balanceOf(owner);
-        uint256 wethBefore = IERC20(address(WETH)).balanceOf(owner);
+        uint256 wbtcBefore = IERC20(address(WBTC)).balanceOf(owner);
         vm.prank(owner);
         ledero.unwindPosition(unwindParams);
         uint256 usdcAfter = IERC20(address(USDC)).balanceOf(owner);
-        uint256 wethAfter = IERC20(address(WETH)).balanceOf(owner);
+        uint256 wbtcAfter = IERC20(address(WBTC)).balanceOf(owner);
 
-        assertTrue(usdcAfter > usdcBefore || wethAfter > wethBefore, "Aave Unwind: User should receive leftovers/dust");
+        assertTrue(usdcAfter > usdcBefore || wbtcAfter > wbtcBefore, "Aave Unwind: User should receive leftovers/dust");
     }
 
     function _helperGetDebtAAVE(address owner) internal view returns (uint256) {
@@ -116,9 +116,4 @@ abstract contract AaveHelper is LederoBase, FfiHelper {
         assertTrue(healthFactor > 1e18, "Aave: Health factor should be above 1.0");
     }
 
-    function _helperFixWETHAAVE() internal {
-        deal(address(WETH), address(this), 10_000 ether);
-        IERC20(address(WETH)).approve(AAVE_POOL, 10_000 ether);
-        IAaveV3Pool(AAVE_POOL).supply(address(WETH), 10_000 ether, address(this), 0);
-    }
 }

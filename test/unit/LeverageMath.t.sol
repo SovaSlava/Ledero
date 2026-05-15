@@ -48,9 +48,9 @@ contract LeverageMathRevertsTest is Test {
     }
 
     function test_CalcFlashLoanAmount() public view {
-        uint256 collateral = 100e6; // 100 USDC
+        uint256 collateral = 1e8; // 1 WBTC
         uint256 desiredLeverage = 30000; // 3x leverage
-        uint256 expectedFlashLoan = 200e6; // 200 USDC
+        uint256 expectedFlashLoan = 2e8; // 2 WBTC
 
         uint256 actualFlashLoan = libMath.calcFlashLoanAmount(collateral, desiredLeverage);
 
@@ -58,7 +58,7 @@ contract LeverageMathRevertsTest is Test {
     }
 
     function test_CalcMaxLeverage_Positive() public view {
-        // Формула: (10000 * 10000) / (10000 - 7600) = 100000000 / 2400 = 41666 (4.16x)
+        // Formula: (10000 * 10000) / (10000 - 7600) = 100000000 / 2400 = 41666 (4.16x)
         uint256 ltv = 8000; // 80%
         // BORROW_SAFETY_MARGIN = 95%
         // SafeLtv = 8000 * 0.95 = 7600
@@ -70,46 +70,53 @@ contract LeverageMathRevertsTest is Test {
         assertEq(actualMaxLeverage, expectedMaxLeverage, "Max leverage calculation is wrong");
     }
 
-    function test_CalcSafeBorrowAmount() public view {
-        uint256 collateralAmount = 1e18; // WETH
-        uint256 ltv = 8000; // 80%
+ function test_CalcSafeBorrowAmount() public view {
+        uint256 collateralAmount = 1e8; // 1 WBTC 
+        uint256 ltv = 8000; // 80% 
 
-        uint256 colPrice = 3000e8; // 1 WETH = 3000$
+        uint256 colPrice = 65000e8; // 1 WBTC = $65,000 
         uint256 borrowPrice = 1e8; // 1 USDC = 1$
 
-        // Ожидаем:
-        // Collateral price = $3000.
-        // Max debt = $2400.
-        // Safe debt (95%) = 2280$ = 2280 USDC
-        uint256 expectedSafeBorrow = 2280e6;
+        // Expected result:
+        // Collateral value = 65000 $
+        // Max debt for 80% LTV = 52000 $
+        // Safe debt (95%) = 49400 $ = 49,400 USDC
+        uint256 expectedSafeBorrow = 49400e6; // USDC 6 decimals
 
         uint256 actualSafeBorrow = libMath.calcSafeBorrowAmount(
             collateralAmount,
             ltv,
             colPrice,
             borrowPrice,
-            18,
-            6 // WETH (18), USDC (6)
+            8, 
+            6 
         );
 
         assertEq(actualSafeBorrow, expectedSafeBorrow, "Safe borrow amount mismatch");
     }
 
     function test_CalcCollateralToWithdraw() public view {
-        uint256 debtToRepay = 2280e6; // 2280 USDC
+        uint256 debtToRepay = 13000e6; // Debt = 13000 USDC
 
-        uint256 colPrice = 3000e8; // WETH = 3000$
-        uint256 borrowPrice = 1e8; // USDC = 1$
+        uint256 colPrice = 65000e8; // 1 WBTC = 65000 $
+        uint256 borrowPrice = 1e8;  // 1 USDC = 1$
 
         uint256 slippageBps = 0;
-        // When collateral 1 WETH -> safe margin 95% -> borrow 2280 USDC
-        // Take flashloan 2280 USDC
-        // Repay 2280 USDC -> Collateral unlocked
-        // Calculate collateral amount for swap for return flashloan
-        uint256 expectedCollateralToWithdraw = 0.76e18;
+        
+        // Expected result:
+        // Need to sell part of collateral for receive 13000 USDC.
+        // When 1 WBTC = 65000 $, we need sell  0.2 WBTC
+        // 13000 / 65000 = 0.2
+        uint256 expectedCollateralToWithdraw = 0.2e8; // 0.2 WBTC
 
-        uint256 actualCollateral =
-            libMath.calcCollateralToWithdraw(debtToRepay, colPrice, borrowPrice, 18, 6, slippageBps);
+        uint256 actualCollateral = libMath.calcCollateralToWithdraw(
+            debtToRepay, 
+            colPrice, 
+            borrowPrice, 
+            8, 
+            6, 
+            slippageBps
+        );
 
         assertEq(actualCollateral, expectedCollateralToWithdraw, "Collateral to withdraw mismatch");
     }

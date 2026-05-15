@@ -28,11 +28,11 @@ contract LederoBeaconProxyTest is Test, ConstantsEtMainnet {
         beaconOwner = makeAddr("beaconOwner");
 
         vm.mockCall(USDC_PRICE_FEED, abi.encodeWithSignature("decimals()"), abi.encode(uint8(8)));
-        vm.mockCall(WETH_PRICE_FEED, abi.encodeWithSignature("decimals()"), abi.encode(uint8(8)));
+        vm.mockCall(WBTC_PRICE_FEED, abi.encodeWithSignature("decimals()"), abi.encode(uint8(8)));
 
         lederoOracle = new LederoOracle();
         lederoOracle.setPriceFeed(USDC, USDC_PRICE_FEED, 86400);
-        lederoOracle.setPriceFeed(WETH, WETH_PRICE_FEED, 3600);
+        lederoOracle.setPriceFeed(WBTC, WBTC_PRICE_FEED, 86400);
 
         lederoImplementation = new Ledero();
 

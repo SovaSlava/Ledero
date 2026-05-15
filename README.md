@@ -47,19 +47,19 @@ sequenceDiagram
 ```
 
 ### Example in Numbers:
-1. **Preparation**: You have **1 WETH** ($3,000), and you want **x2** leverage.
-2. **Flash Loan**: Ledero executes a flash loan for **1 WETH**.
-3. **Supply**: A total of **2 WETH** (your 1 + 1 from the flash loan) is supplied to Aave V3.
-4. **Borrow**: The protocol borrows **$3,000 USDC** against the 2 WETH collateral.
-5. **Swap**: The $3,000 USDC is swapped via 1inch back into **1 WETH**.
-6. **Repay**: The obtained 1 WETH is returned to Balancer to repay the flash loan.
-**Result**: In a single transaction, you hold a position of **2 WETH** with a debt of only **$3,000 USDC**.
+1. **Preparation**: You have **1 WBTC** ($65,000), and you want **2x** leverage.
+2. **Flash Loan**: Ledero executes a flash loan for **1 WBTC**.
+3. **Supply**: A total of **2 WBTC** (your 1 WBTC + 1 WBTC from the flash loan) is supplied to Aave V3.
+4. **Borrow**: The protocol borrows **$65,000 USDC** against your 2 WBTC collateral.
+5. **Swap**: The $65,000 USDC is swapped via 1inch back into **1 WBTC**.
+6. **Repay**: The obtained 1 WBTC is returned to Balancer to repay the flash loan.
 
+**Result**: In a single transaction, you hold a position of **2 WBTC** (worth $130,000) with a debt of only **65,000 USDC**. Your net equity remains $65,000, but your market exposure is doubled!
 ---
 
 ## 📉 Closing a Position (Unwind Position)
 
-Allows you to lock in profits or save a position from liquidation. Let's assume that during the holding period, the price of WETH increased by **50%** (from $3,000 to $4,500).
+Allows you to lock in profits or save a position from liquidation. Let's assume that during the holding period, the price of WBTC increased by **50%** (from $65,000 to $97,500).
 
 ```mermaid
 sequenceDiagram
@@ -84,15 +84,15 @@ sequenceDiagram
     Ledero->>User: Transfer net profit to user
 ```
 
-### Example in Numbers (assuming a 50% price increase):
-1. **State**: You have 2 WETH ($9,000) in collateral and $3,000 of debt in USDC.
-2. **Flash Loan**: Ledero executes a **$3,000 USDC** flash loan.
-3. **Repay & Withdraw**: The debt in Aave is repaid, and Ledero withdraws all **2 WETH**.
-4. **Swap**: The protocol swaps a portion of the collateral (**~0.67 WETH**) back into **$3,000 USDC**.
-5. **Repay**: The $3,000 USDC is returned to Balancer.
-6. **Profit**: The user receives the remaining **1.33 WETH** (valued at **$6,000**) in their wallet.
-**Benefit**: The net profit is **100%** ($3,000) while the asset only grew by **50%**, and all unwinding actions took just 1 atomic transaction.
+### Example in Numbers:
+1. **State**: You have **2 WBTC** (now worth $195,000) in collateral and **$65,000** of debt in USDC.
+2. **Flash Loan**: Ledero executes a **$65,000 USDC** flash loan.
+3. **Repay & Withdraw**: The debt in Aave is repaid, and Ledero withdraws all **2 WBTC**.
+4. **Swap**: The protocol swaps a portion of the collateral (**~0.67 WBTC**) back into **$65,000 USDC** (since 1 WBTC is now $97,500).
+5. **Repay**: The $65,000 USDC is returned to Balancer to repay the flash loan.
+6. **Profit**: The user receives the remaining **~1.33 WBTC** (valued at **$130,000**) in their wallet.
 
+**Benefit**: Your net equity grew from $65,000 to $130,000. The net profit is **100%** ($65,000) while the underlying asset only grew by **50%**, and all unwinding actions took just 1 atomic transaction.
 ---
 
 ## ✨ Key Features

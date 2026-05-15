@@ -17,12 +17,12 @@ contract LederoInvariantsTest is LederoBase {
     Mock1InchRouter public mockRouter;
     MockBalancer public mockVault;
     int256 public usdcPrice;
-    int256 public wethPrice;
+    int256 public wbtcPrice;
 
     function _deployOracle() internal override {
         super._deployOracle();
         (, usdcPrice,,,) = AggregatorV3Interface(USDC_PRICE_FEED).latestRoundData();
-        (, wethPrice,,,) = AggregatorV3Interface(WETH_PRICE_FEED).latestRoundData();
+        (, wbtcPrice,,,) = AggregatorV3Interface(WBTC_PRICE_FEED).latestRoundData();
         _refreshOracleMocks();
     }
 
@@ -39,9 +39,9 @@ contract LederoInvariantsTest is LederoBase {
         swapAdapter = OneInchAdapter(_etchToVanity(address(tempSwap), SWAP_PREFIX, 100));
 
         deal(address(USDC), address(mockRouter), 100_000_000e6);
-        deal(address(WETH), address(mockRouter), 10_000e18);
+        deal(address(WBTC), address(mockRouter), 10_000e18);
         deal(address(USDC), address(mockVault), 100_000_000e6);
-        deal(address(WETH), address(mockVault), 10_000e18);
+        deal(address(WBTC), address(mockVault), 10_000e18);
     }
 
     function _refreshOracleMocks() public {
@@ -52,9 +52,9 @@ contract LederoInvariantsTest is LederoBase {
         );
 
         vm.mockCall(
-            WETH_PRICE_FEED,
+            WBTC_PRICE_FEED,
             abi.encodeWithSignature("latestRoundData()"),
-            abi.encode(uint80(1), wethPrice, block.timestamp, block.timestamp, uint80(1))
+            abi.encode(uint80(1), wbtcPrice, block.timestamp, block.timestamp, uint80(1))
         );
     }
 
@@ -85,16 +85,16 @@ contract LederoInvariantsTest is LederoBase {
 
     function invariant_ClosedPositionMeansZeroDebt() public view {
         if (!handler.isPositionOpen()) {
-            uint256 aaveDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), address(WETH));
-            uint256 compDebt = compoundAdapter.getDebtAmount(COMPOUND_WETH_COMET, address(ledero), address(WETH));
+            uint256 aaveDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), address(WBTC));
+            uint256 compDebt = compoundAdapter.getDebtAmount(COMPOUND_USDC_COMET, address(ledero), address(WBTC));
 
             assertEq(aaveDebt + compDebt, 0, "CRITICAL: Debt exists in pools but handler state is closed");
         }
     }
 
     function invariant_DebtIsIsolatedToOneProtocol() public view {
-        uint256 aaveDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), address(WETH));
-        uint256 compDebt = compoundAdapter.getDebtAmount(COMPOUND_WETH_COMET, address(ledero), address(WETH));
+        uint256 aaveDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), address(WBTC));
+        uint256 compDebt = compoundAdapter.getDebtAmount(COMPOUND_USDC_COMET, address(ledero), address(WBTC));
 
         bool isIsolated = (aaveDebt == 0) || (compDebt == 0);
 
@@ -118,7 +118,7 @@ contract LederoInvariantsTest is LederoBase {
             );
 
             assertApproxEqAbs(
-                IERC20(address(WETH)).balanceOf(systemContracts[i]), 0, tolerance, "WETH leaked into system contract"
+                IERC20(address(WBTC)).balanceOf(systemContracts[i]), 0, tolerance, "WBTC leaked into system contract"
             );
         }
     }
@@ -129,7 +129,7 @@ contract LederoInvariantsTest is LederoBase {
         assertTrue(hfAave == type(uint256).max || hfAave >= MIN_SAFE_HF, "Aave Health Factor dropped below safe limit!");
 
         uint256 hfCompound =
-            compoundAdapter.getPositionHealthFactor(COMPOUND_WETH_COMET, address(ledero), address(USDC));
+            compoundAdapter.getPositionHealthFactor(COMPOUND_USDC_COMET, address(ledero), address(USDC));
         assertTrue(
             hfCompound == type(uint256).max || hfCompound >= MIN_SAFE_HF,
             "Compound Health Factor dropped below safe limit!"

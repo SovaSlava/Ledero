@@ -17,7 +17,7 @@ contract EnvironmentSanityTest is LederoBase, FfiHelper {
         uint256 swapAmount = 1000e6; // 1000 USDC
 
         (bytes memory swapData, uint256 expectedAmount) =
-            get1inchSwapData(address(USDC), address(WETH), swapAmount, address(ledero));
+            get1inchSwapData(address(USDC), address(WBTC), swapAmount, address(ledero));
 
         assertTrue(swapData.length > 0, "Environment Error: Failed to get swap data from 1inch API");
         assertTrue(expectedAmount > 0, "Environment Error: 1inch API returned 0 expected amount");
