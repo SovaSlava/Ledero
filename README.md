@@ -3,6 +3,7 @@
 ![Solidity](https://img.shields.io/badge/Solidity-0.8.35-363636?style=flat-square&logo=solidity)
 ![Foundry](https://img.shields.io/badge/Foundry-Toolchain-orange?style=flat-square)
 ![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen?style=flat-square)
+[![CI](https://github.com/SovaSlava/Ledero/actions/workflows/test.yml/badge.svg)](https://github.com/SovaSlava/Ledero/actions/workflows/test.yml)
 ![License](https://img.shields.io/badge/License-UNLICENSED-blue?style=flat-square)
 
 **Ledero is a one-transaction leverage engine that compresses complex DeFi operations into a single atomic call. It aims to make sophisticated strategies accessible, cheaper, and safer.**
