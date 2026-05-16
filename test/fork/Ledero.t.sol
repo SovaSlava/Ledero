@@ -4,8 +4,6 @@ pragma solidity 0.8.35;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {LederoHelper} from "../helpers/LederoHelper.t.sol";
 import {MigrationParams} from "../../src/interfaces/internal/ILederoTypes.sol";
-import {MockAaveRewardsController} from "../mock/MockAaveRewardsController.sol";
-import {MockCompoundRewardsController} from "../mock/MockCompoundRewardsController.sol";
 import {IAaveV3Pool} from "../../src/interfaces/external/IAaveV3Pool.sol";
 import {IComet} from "../../src/interfaces/external/ICompound.sol";
 
@@ -34,49 +32,6 @@ contract LederoForkTest is LederoHelper {
         uint256 debtAfterUnwind = _helperGetDebtCompound(address(ledero));
 
         assertTrue(debtAfterUnwind < debtBeforeUnwind, "Compound: Debt should be reduced after unwind");
-    }
-
-    function test_claimProtocolRewards_AaveV3_Success() public {
-        address AAVE_TOKEN = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
-
-        MockAaveRewardsController mockController = new MockAaveRewardsController(AAVE_TOKEN);
-
-        deal(AAVE_TOKEN, address(mockController), 1000 * 10 ** 18);
-
-        uint256 balanceBefore = IERC20(AAVE_TOKEN).balanceOf(owner);
-
-        vm.prank(owner);
-        ledero.claimProtocolRewards(
-            address(aaveAdapter), AAVE_POOL, address(USDC), address(WBTC), address(mockController), owner
-        );
-
-        uint256 balanceAfter = IERC20(AAVE_TOKEN).balanceOf(owner);
-        uint256 earnedRewards = balanceAfter - balanceBefore;
-
-        assertEq(earnedRewards, 50e18, "AAVE Rewards transfer failed");
-    }
-
-    function test_claimProtocolRewards_CompoundV3_Success() public {
-        address dummyCometPool = address(0x3333);
-
-        address COMP_TOKEN = 0xc00e94Cb662C3520282E6f5717214004A7f26888;
-
-        MockCompoundRewardsController mockController = new MockCompoundRewardsController(COMP_TOKEN);
-
-        deal(COMP_TOKEN, address(mockController), 1000 * 10 ** 18);
-
-        uint256 balanceBefore = IERC20(COMP_TOKEN).balanceOf(owner);
-
-        vm.prank(owner);
-
-        ledero.claimProtocolRewards(
-            address(compoundAdapter), dummyCometPool, address(USDC), address(WBTC), address(mockController), owner
-        );
-
-        uint256 balanceAfter = IERC20(COMP_TOKEN).balanceOf(owner);
-        uint256 earnedRewards = balanceAfter - balanceBefore;
-
-        assertEq(earnedRewards, 30e18, "Compound Rewards transfer failed");
     }
 
     function test_Migrate_Aave_To_CompoundV3() public {

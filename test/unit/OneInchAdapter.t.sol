@@ -42,8 +42,8 @@ contract OneInchAdapterTest is Test {
         uint256 lederoBalanceTokenIn = tokenA.balanceOf(address(ledero));
         uint256 lederoBalanceTokenOut = tokenB.balanceOf(address(ledero));
         assertEq(adapertBalance, 0);
-        assertEq(lederoBalanceTokenIn, 1 ether);
-        assertEq(lederoBalanceTokenOut, 9 ether);
+        assertEq(lederoBalanceTokenIn, 1 ether); // 10 tokenA -> swap 9 tokenA to 9 tokenB = 1 tokenA
+        assertEq(lederoBalanceTokenOut, 9 ether); // 9 tokenB
     }
 
     function test_RevertIf_CallToRouterFailed() public {

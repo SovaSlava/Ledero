@@ -139,6 +139,6 @@ contract LeverageMathRevertsTest is Test {
 
     function test_RevertIf_LTVMoreThan100Percent() public {
         vm.expectRevert(LeverageMath.IncorrectLTV.selector);
-        libMath.calcMaxLeverage(40000);
+        libMath.calcMaxLeverage(40000); // 400%
     }
 }

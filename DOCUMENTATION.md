@@ -114,7 +114,17 @@ Before any position is opened or closed, the frontend must interact with the per
     * **Profit Distribution**: Remaining tokens are transferred directly to the user's wallet.
     * **Safety Check**: If not closed entirely, a Health Factor check ensures the remaining position is safe.
 
----
+### Migrate Position Lifecycle
+1. **User Call**: User invokes `migratePosition()` passing the exact balances of collateral and debt to move, along with the source and destination lending adapters.
+2. **Context Setup**: Core stores `Operation.MIGRATE_POSITION` and the relevant adapter addresses (flash loan, source lending, destination lending) in transient storage.
+3. **Flash Loan Initiation**: Core requests a flash loan in the **Debt Token** (e.g., USDC) equal to the user's total outstanding debt in the original protocol.
+4. **The Callback**: The external provider calls back to Ledero's `receiveFlashLoan()`.
+5. **Atomic Execution**:
+    * **Repay & Withdraw (Source)**: Flash loan funds are used to completely repay the debt in the source lending pool (e.g., Aave). The unlocked collateral is then fully withdrawn to the Ledero contract.
+    * **Supply & Borrow (Destination)**: The withdrawn collateral is immediately supplied to the new lending pool (e.g., Compound V3). Ledero then borrows the exact amount of Debt Tokens needed to cover the flash loan.
+    * **Repay Flash Loan**: The newly borrowed Debt Tokens are returned to the flash loan provider (e.g., Balancer).
+    * **Seamless Transition**: The transaction finalizes, leaving the user with the exact same leveraged exposure, but successfully migrated to a protocol with better interest rates — all without requiring upfront capital or multiple manual steps.
+
 
 ## 4. Technical Innovations & Gas Optimizations
 
@@ -195,4 +205,6 @@ forge test --mp test/fork/Ledero.t.sol --rpc-url $ETH_RPC_URL
 forge test --match-path "test/unit/*" 
 # Run fuzzing tests
 forge test --mp test/fuzzing/LeverageMath.t.sol
+# Run invariant (state full) tests
+forge test --mt invariant
 ```

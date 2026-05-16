@@ -20,7 +20,7 @@ import {ILendingAdapter} from "../../src/interfaces/internal/ILendingAdapter.sol
 import {ConstantsEtMainnet} from "../Constants.t.sol";
 import {OneInchAdapter} from "../../src/adapters/swap/OneInch.sol";
 import {CompoundV3Adapter} from "../../src/adapters/lendings/CompoundV3.sol";
-import {RevertAllMock} from "../utils/Revert.sol";
+import {MockRevertAll} from "../mock/MockRevertAll.sol";
 import {ISwapAdapter} from "../../src/interfaces/internal/ISwapAdapter.sol";
 import "../../src/interfaces/internal/IConstants.sol";
 import "../../src/interfaces/internal/ILederoTypes.sol";
@@ -124,11 +124,11 @@ contract LederoUnitTest is Test, LederoBase {
         tokenA.approve(address(ledero), type(uint256).max);
         OpenPositionParams memory params = _getDefaultOpenPositionParams();
 
-        vm.etch(address(compoundAdapter), address(new RevertAllMock()).code);
+        vm.etch(address(compoundAdapter), address(new MockRevertAll()).code);
 
         deal(address(tokenA), address(mockVault), 5 ether);
         vm.prank(owner);
-        bytes memory expectedReason = abi.encodeWithSelector(RevertAllMock.AdapterIsDead.selector);
+        bytes memory expectedReason = abi.encodeWithSelector(MockRevertAll.AdapterIsDead.selector);
         vm.expectRevert(abi.encodeWithSelector(AdapterExecutionFailed.selector, expectedReason));
         ledero.createLeveragedPosition(params);
     }

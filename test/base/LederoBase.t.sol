@@ -15,9 +15,10 @@ import {CompoundV3Adapter} from "../../src/adapters/lendings/CompoundV3.sol";
 import {BalancerV3Adapter} from "../../src/adapters/loan/BalancerV3.sol";
 import {OneInchAdapter} from "../../src/adapters/swap/OneInch.sol";
 import {ConstantsEtMainnet} from "../Constants.t.sol";
+import {Tools} from "../utils/Tools.sol";
 import "../../src/interfaces/internal/IConstants.sol";
 
-abstract contract LederoBase is Test, ConstantsEtMainnet {
+abstract contract LederoBase is Test, ConstantsEtMainnet, Tools {
     // Core
     Ledero public lederoImplementation;
     UpgradeableBeacon public beacon;
@@ -100,12 +101,5 @@ abstract contract LederoBase is Test, ConstantsEtMainnet {
         vm.stopPrank();
     }
 
-    function _etchToVanity(address originalAddress, uint8 prefix, uint160 salt) internal returns (address) {
-        uint160 vanityNum = (uint160(prefix) << 140) | salt;
-        address vanityAddr = address(vanityNum);
 
-        vm.etch(vanityAddr, originalAddress.code);
-
-        return vanityAddr;
-    }
 }

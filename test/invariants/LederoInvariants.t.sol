@@ -39,9 +39,9 @@ contract LederoInvariantsTest is LederoBase {
         swapAdapter = OneInchAdapter(_etchToVanity(address(tempSwap), SWAP_PREFIX, 100));
 
         deal(address(USDC), address(mockRouter), 100_000_000e6);
-        deal(address(WBTC), address(mockRouter), 10_000e18);
+        deal(address(WBTC), address(mockRouter), 10_000e8);
         deal(address(USDC), address(mockVault), 100_000_000e6);
-        deal(address(WBTC), address(mockVault), 10_000e18);
+        deal(address(WBTC), address(mockVault), 10_000e8);
     }
 
     function _refreshOracleMocks() public {
@@ -85,16 +85,16 @@ contract LederoInvariantsTest is LederoBase {
 
     function invariant_ClosedPositionMeansZeroDebt() public view {
         if (!handler.isPositionOpen()) {
-            uint256 aaveDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), address(WBTC));
-            uint256 compDebt = compoundAdapter.getDebtAmount(COMPOUND_USDC_COMET, address(ledero), address(WBTC));
+            uint256 aaveDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), address(USDC));
+            uint256 compDebt = compoundAdapter.getDebtAmount(COMPOUND_USDC_COMET, address(ledero), address(USDC));
 
             assertEq(aaveDebt + compDebt, 0, "CRITICAL: Debt exists in pools but handler state is closed");
         }
     }
 
     function invariant_DebtIsIsolatedToOneProtocol() public view {
-        uint256 aaveDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), address(WBTC));
-        uint256 compDebt = compoundAdapter.getDebtAmount(COMPOUND_USDC_COMET, address(ledero), address(WBTC));
+        uint256 aaveDebt = aaveAdapter.getDebtAmount(AAVE_POOL, address(ledero), address(USDC));
+        uint256 compDebt = compoundAdapter.getDebtAmount(COMPOUND_USDC_COMET, address(ledero), address(USDC));
 
         bool isIsolated = (aaveDebt == 0) || (compDebt == 0);
 
@@ -125,11 +125,11 @@ contract LederoInvariantsTest is LederoBase {
 
     function invariant_healthFactorIsSafe() public view {
         uint256 MIN_SAFE_HF = 1.05e18; // 1.05
-        uint256 hfAave = aaveAdapter.getPositionHealthFactor(AAVE_POOL, address(ledero), address(USDC));
+        uint256 hfAave = aaveAdapter.getPositionHealthFactor(AAVE_POOL, address(ledero), address(WBTC));
         assertTrue(hfAave == type(uint256).max || hfAave >= MIN_SAFE_HF, "Aave Health Factor dropped below safe limit!");
 
         uint256 hfCompound =
-            compoundAdapter.getPositionHealthFactor(COMPOUND_USDC_COMET, address(ledero), address(USDC));
+            compoundAdapter.getPositionHealthFactor(COMPOUND_USDC_COMET, address(ledero), address(WBTC));
         assertTrue(
             hfCompound == type(uint256).max || hfCompound >= MIN_SAFE_HF,
             "Compound Health Factor dropped below safe limit!"

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.35;
 
-contract RevertAllMock {
+contract MockRevertAll {
     error AdapterIsDead();
 
     fallback() external payable {

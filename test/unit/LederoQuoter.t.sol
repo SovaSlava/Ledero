@@ -22,7 +22,7 @@ contract LederoQuoterTest is Test {
     MockBalancer flashAdapter;
     MockToken wbtc;
     MockToken usdc;
-    address dummyPool = address(0x111);
+    address pool = address(0x111);
 
     function setUp() public {
         MockOracle oracle = new MockOracle();
@@ -38,7 +38,7 @@ contract LederoQuoterTest is Test {
         LederoQuoter.QuoteOpenParams memory params = LederoQuoter.QuoteOpenParams({
             lendingAdapter: address(lendingAdapter),
             flashAdapter: address(flashAdapter),
-            lendingPool: dummyPool,
+            lendingPool: pool,
             collateralToken: address(usdc),
             borrowToken: address(wbtc),
             desiredLeverage: 30000,
@@ -55,7 +55,7 @@ contract LederoQuoterTest is Test {
         LederoQuoter.QuoteUnwindParams memory params = LederoQuoter.QuoteUnwindParams({
             lendingAdapter: address(lendingAdapter),
             flashAdapter: address(flashAdapter),
-            lendingPool: dummyPool,
+            lendingPool: pool,
             collateralToken: address(usdc),
             debtToken: address(wbtc),
             user: address(0xDEAD), // return 0
@@ -72,7 +72,7 @@ contract LederoQuoterTest is Test {
     function test_GetMaxLeverage() public view {
         uint256 expectedMaxLeverage = 41666;
 
-        uint256 actualMaxLeverage = quoter.getMaxLeverage(address(lendingAdapter), dummyPool, address(usdc));
+        uint256 actualMaxLeverage = quoter.getMaxLeverage(address(lendingAdapter), pool, address(usdc));
 
         assertEq(actualMaxLeverage, expectedMaxLeverage, "Max leverage mismatch in Quoter");
     }
@@ -83,7 +83,7 @@ contract LederoQuoterTest is Test {
         LederoQuoter.QuoteOpenParams memory params = LederoQuoter.QuoteOpenParams({
             lendingAdapter: address(lendingAdapter),
             flashAdapter: address(flashAdapter),
-            lendingPool: dummyPool,
+            lendingPool: pool,
             collateralToken: badToken,
             borrowToken: address(wbtc),
             desiredLeverage: 30000,

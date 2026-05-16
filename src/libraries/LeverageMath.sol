@@ -54,7 +54,7 @@ library LeverageMath {
 
         uint256 rawCollateral = (debtPrice * debtAmount * (10 ** colDecimals)) / (colPrice * (10 ** debtDecimals));
 
-        // Add slippag0
+        // Add slippage
         return (rawCollateral * (10000 + slippageBps)) / 10000;
     }
 

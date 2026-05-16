@@ -13,7 +13,7 @@ interface IBalancerVault {
     function getFlashLoanFee(address token, uint256 amount) external view returns (uint256);
 }
 
-// https://docs.balancer.fi/concepts/vault/flash-loans.html
+///  https://docs.balancer.fi/concepts/vault/flash-loans.html
 contract BalancerV3Adapter is IFlashLoanAdapter {
     using SafeERC20 for IERC20;
     IBalancerVault public immutable VAULT;
@@ -33,8 +33,7 @@ contract BalancerV3Adapter is IFlashLoanAdapter {
         LEDERO = _ledero;
     }
 
-    function getFullRepayAmount(address token, uint256 amount) external pure override returns (uint256) {
-        uint256 repayAmount;
+    function getFullRepayAmount(address, uint256 amount) external pure override returns (uint256) {
         // No fee
         return amount;
     }

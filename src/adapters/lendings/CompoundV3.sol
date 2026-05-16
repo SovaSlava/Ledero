@@ -55,15 +55,10 @@ contract CompoundV3Adapter is ILendingAdapter {
         return (uint256(assetInfo.borrowCollateralFactor) * 10000) / 1e18;
     }
 
-    /**
-     * @dev Compound allow claim all tokens in pool and do not specify them
-     */
     function claimRewards(
-        address pool,
-        address,
-        /* collateralToken */
-        address,
-        /* debtToken */
+        address comet,
+        address, // collateralToken
+        address, // debtToken 
         address rewardContract,
         address to
     )
@@ -71,7 +66,7 @@ contract CompoundV3Adapter is ILendingAdapter {
         override
     {
         // shouldAccrue = true (recalculate rewards)
-        ICometRewards(rewardContract).claimTo(pool, address(this), to, true);
+        ICometRewards(rewardContract).claimTo(comet, address(this), to, true);
     }
 
     function getPositionHealthFactor(address pool, address user, address collateralAsset)
