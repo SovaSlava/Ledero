@@ -1,0 +1,24 @@
+name: Unit tests
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Run unit tests
+        run: forge test --match-path "test/unit/*" -vvv

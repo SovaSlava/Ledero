@@ -1,0 +1,36 @@
+name: Gemini PR review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "src/**/*.sol"
+      - "test/**/*.sol"
+      - "script/**"
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Gemini code review
+        uses: sshnaidm/gemini-code-review-action@v2
+        continue-on-error: true
+        with:
+          gemini-key: ${{ secrets.GEMINI_API_KEY }}
+          model: "models/gemini-3.5-flash"
+          prompt: |
+            You are an elite Smart Contract Auditor and EVM Architect reviewing the 'Ledero' protocol (a Leverage DeFi Router integrating with 1inch API for calldata/swaps, Uniswap v3, Balancer, and Aave/Compound for lending). Target network: Ethereum Mainnet. Custom price validation is expected; do not trust external calldata blindly.
+            1. Gas Optimization: Analyze the code for ADVANCED optimization opportunities. While you should consider Yul/Assembly implementations, memory overlapping, and Transient Storage (TSTORE), DO NOT limit yourself to these. Suggest any deep EVM optimization trick that reduces runtime gas costs. 
+            2. Security & Composability: Look for critical vulnerabilities arising from DeFi composability. Keep in mind vectors like read-only reentrancy, oracle manipulation, and flashloan state inconsistencies, but your primary goal is to find ANY non-obvious logical flaw. 
+            3. Math & Precision: Strictly audit all mathematical operations for precision loss, rounding errors (especially in share/asset conversions), and division-before-multiplication bugs. 
+            4. Token & Decimal Handling: Verify that the logic robustly handles tokens with non-standard decimals (e.g., 6 for USDC, 8 for WBTC) and weird ERC20 behaviors (fee-on-transfer, missing return values). Flag any hardcoded 1e18 assumptions. 
+            5. Ignore basic stylistic issues, simple variable caching, or standard best practices. I only want high-signal, senior-level architectural and low-level feedback.

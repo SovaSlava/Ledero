@@ -1,0 +1,69 @@
+name: Merge
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  FOUNDRY_PROFILE: merge
+
+jobs:
+  linters:
+    name: Code Quality & Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Install detect-secrets
+        run: pip install detect-secrets
+
+      - name: Check for new secrets
+        run: detect-secrets-hook --baseline .secrets.baseline $(git ls-files)
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Run Prettier check
+        run: npx prettier --check .
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Check Solidity formatting
+        run: forge fmt --check
+
+      - name: Run Solhint
+        run: npx solhint 'src/**/*.sol'
+
+  tests:
+    name: Foundry tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Install Foundry (for forge test)
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Run unit tests
+        run: forge test --match-path "test/unit/*" -vvv
+
+      - name: Run fuzz tests
+        run: forge test --mp test/fuzzing/LeverageMath.t.sol -vvv

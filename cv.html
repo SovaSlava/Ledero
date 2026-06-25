@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Viacheslav Dmitriev - Resume</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        color: #111827;
+        line-height: 1.5;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px;
+        background-color: #ffffff;
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        margin-top: 0;
+        color: #111827;
+      }
+      h2 {
+        font-size: 1.2em;
+        text-transform: uppercase;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 5px;
+        margin-top: 25px;
+        margin-bottom: 15px;
+        color: #1f2937;
+      }
+      .header-container {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .header-name {
+        margin-bottom: 8px;
+        font-size: 2.4em;
+        font-weight: bold;
+      }
+      .header-title {
+        color: #2563eb;
+        margin-top: 0;
+        letter-spacing: 0.5px;
+        font-size: 1.1em;
+        text-transform: uppercase;
+      }
+      .contact-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: none;
+        font-size: 0.95em;
+        color: #4b5563;
+        margin-top: 20px;
+        margin-bottom: 15px;
+      }
+      .contact-table td {
+        border: none;
+        padding: 4px 0;
+      }
+      .contact-link {
+        color: #2563eb;
+        text-decoration: none;
+      }
+      .divider {
+        border: none;
+        border-top: 1px solid #e5e7eb;
+        margin-bottom: 20px;
+      }
+      .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 5px;
+      }
+      .job-title {
+        font-weight: bold;
+        font-size: 1.1em;
+      }
+      .job-meta {
+        font-style: italic;
+        color: #4b5563;
+        font-size: 0.95em;
+      }
+      ul {
+        margin-top: 5px;
+        margin-bottom: 15px;
+        padding-left: 20px;
+        color: #374151;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      strong {
+        color: #111827;
+      }
+      @media print {
+        body {
+          padding: 0;
+          margin: 0;
+          font-size: 12px; /* Чуть уменьшаем шрифт для идеальной верстки на A4 */
+        }
+        .page-break {
+          page-break-before: always;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Шапка (Контакты) -->
+    <div class="header-container">
+      <h1 class="header-name">Viacheslav Dmitriev</h1>
+      <h3 class="header-title">
+        Senior Smart Contract Developer (DeFi & Security Focus)
+      </h3>
+    </div>
+
+    <table class="contact-table">
+      <tr>
+        <td style="text-align: left">Moscow, Russia • Remote</td>
+        <td style="text-align: center">
+          GitHub:
+          <a href="https://github.com/SovaSlava" class="contact-link"
+            >github.com/SovaSlava</a
+          >
+        </td>
+        <td style="text-align: right">
+          LinkedIn:
+          <a href="https://linkedin.com/in/sovaslava" class="contact-link"
+            >linkedin.com/in/sovaslava</a
+          >
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: left">
+          Telegram:
+          <a href="https://t.me/sovaslava" class="contact-link">@sovaslava</a>
+        </td>
+        <td style="text-align: center">
+          Sherlock:
+          <a
+            href="https://audits.sherlock.xyz/watson/sovaslava"
+            class="contact-link"
+            >sovaslava</a
+          >
+        </td>
+        <td style="text-align: right">
+          Email: <span class="contact-link">Contact via TG/LinkedIn</span>
+        </td>
+      </tr>
+    </table>
+    <hr class="divider" />
+
+    <!-- SUMMARY -->
+    <h2>Summary</h2>
+    <p>
+      Accomplished Senior Smart Contract Developer with 10 years of experience
+      in blockchain engineering, specializing in advanced DeFi architecture,
+      cross-chain infrastructure, and low-level EVM optimization. Expert in
+      building resilient systems with a rigorous zero-trust approach to external
+      protocols and third-party integrations. Deep expertise in EVM mechanics
+      (Yul, Opcodes), CI/CD pipeline automation, and real-time incident response
+      management. Proven track record of designing capital-efficient DeFi
+      routers, decentralized bridges, and achieving 100% test coverage through
+      state-of-the-art testing methodologies.
+    </p>
+
+    <!-- CORE COMPETENCIES & TECH STACK -->
+    <h2>Core Competencies & Tech Stack</h2>
+    <ul>
+      <li>
+        <strong>Languages:</strong> Solidity, Yul, EVM Opcodes, TypeScript,
+        JavaScript, Go.
+      </li>
+      <li><strong>Non-EVM Ecosystems:</strong> TON Blockchain (FunC, Tolk).</li>
+      <li>
+        <strong>DeFi Primitives:</strong> AMMs (Uniswap v3/v4, Balancer),
+        Lending Markets (Aave v3, Compound), Aggregators (1inch).
+      </li>
+      <li>
+        <strong>Infrastructure & Security:</strong> CI/CD Automation (GitHub
+        Actions), LayerZero, Tenderly, Foundry, Hardhat, Fuzzing, Invariant
+        Testing, Mainnet Fork Testing, Defensive Programming.
+      </li>
+    </ul>
+
+    <!-- PROFESSIONAL EXPERIENCE -->
+    <h2>Professional Experience</h2>
+
+    <div>
+      <div class="job-header">
+        <span class="job-title">Sidus Heroes / Ton Station</span>
+        <span class="job-meta">Dec 2021 – May 2026 | Remote Full-time</span>
+      </div>
+      <div
+        style="
+          font-style: italic;
+          margin-bottom: 8px;
+          font-size: 0.95em;
+          color: #4b5563;
+        "
+      >
+        Senior Smart Contract Developer (EVM, TON)
+      </div>
+      <ul>
+        <li>
+          <strong>Cross-Chain Bridges:</strong> Designed and developed a secure,
+          decentralized ERC20 token bridge linking Ethereum, BSC, and Linea
+          networks using the LayerZero protocol.
+        </li>
+        <li>
+          <strong>Real-Time Security & Incident Response:</strong> Implemented
+          an automated monitoring and alert architecture via Tenderly to
+          instantly detect anomalous on-chain events, integrated with custom
+          fallback scripts to execute emergency circuit-breaker/pause
+          mechanisms.
+        </li>
+        <li>
+          <strong>Tokenomics & Distribution:</strong> Engineered highly
+          gas-efficient token airdrop smart contracts utilizing advanced shadow
+          distribution mechanisms to optimize transaction fees and guarantee
+          secure execution paths.
+        </li>
+        <li>
+          <strong>Production Security & Audits:</strong> Authored a
+          production-grade TON smart contract that successfully passed a
+          comprehensive external audit by CertiK with zero critical
+          vulnerabilities.
+        </li>
+        <li>
+          <strong>TON Architecture:</strong> Extended project ecosystem reach to
+          non-EVM environments by writing production-grade smart contracts on
+          the TON Blockchain using FunC and Tolk languages.
+        </li>
+      </ul>
+    </div>
+
+    <div style="margin-top: 20px">
+      <div class="job-header">
+        <span class="job-title">Early Blockchain Development Initiatives</span>
+        <span class="job-meta">2016 – 2021</span>
+      </div>
+      <div
+        style="
+          font-style: italic;
+          margin-bottom: 8px;
+          font-size: 0.95em;
+          color: #4b5563;
+        "
+      >
+        Blockchain Engineer / Smart Contract Developer | Various Projects
+      </div>
+      <ul>
+        <li>
+          Led core architecture and smart contract deployment across multiple
+          early-stage Web3 applications, specializing in the development of
+          decentralized lotteries and NFT-based gaming platforms.
+        </li>
+        <li>
+          Established a deep foundational mastery of distributed ledgers, EVM
+          mechanics, robust backend integrations, and token generation events
+          (TGE).
+        </li>
+      </ul>
+    </div>
+
+    <!-- HIGHLIGHTED PROJECTS & ARCHITECTURE EXPERIENCE -->
+    <h2>Highlighted Projects & Architecture Experience</h2>
+
+    <div>
+      <div class="job-header">
+        <span class="job-title">Ledero | Leverage DeFi Router</span>
+        <span class="job-meta">[GitHub: SovaSlava/Ledero]</span>
+      </div>
+      <div
+        style="
+          font-style: italic;
+          margin-bottom: 8px;
+          font-size: 0.95em;
+          color: #4b5563;
+        "
+      >
+        Creator & Lead Developer
+      </div>
+      <ul>
+        <li>
+          Architected and delivered a capital-efficient DeFi routing protocol
+          that seamlessly aggregates lending and swap paths to construct
+          multi-layered leveraged positions.
+        </li>
+        <li>
+          Integrated deeply with 1inch, Compound, Aave v3, and Balancer core
+          liquidity layers to execute complex yield strategies.
+        </li>
+        <li>
+          Applied zero-trust defensive patterns, insulating the protocol's TVL
+          against external systemic shocks, read-only reentrancy vectors, or
+          compromised underlying pools.
+        </li>
+        <li>
+          Achieved a strict 100% code coverage standard through Foundry,
+          maintaining mathematical invariants using continuous fuzzing and
+          mainnet fork testing simulations.
+        </li>
+        <li>
+          Set up and maintained automated CI/CD pipelines to ensure rigorous
+          testing standards and deployment reliability across the protocol.
+        </li>
+      </ul>
+    </div>
+
+    <div style="margin-top: 20px">
+      <div class="job-header">
+        <span class="job-title"
+          >Advanced Core EVM Engineering & Custom Implementations</span
+        >
+      </div>
+      <ul>
+        <li>
+          <strong>Uniswap v4 Hooks:</strong> Developed a custom hook designed to
+          reward liquidity providers with ERC20 tokens. The hook automatically
+          records deposited amounts and timestamps, calculating and minting
+          customized token rewards directly to a user-specified address upon
+          partial or full liquidity withdrawal.
+        </li>
+        <li>
+          <strong>Opcode-Level Development:</strong> Built specialized,
+          gas-critical smart contracts compiled entirely from raw EVM opcodes
+          and inline Yul, eliminating standard Solidity compiler overhead to
+          maximize throughput and capital efficiency.
+        </li>
+      </ul>
+    </div>
+
+    <!-- SECURITY RESEARCH & WEB3 CONTRIBUTIONS -->
+    <h2>Security Research & Web3 Contributions</h2>
+
+    <div>
+      <div class="job-header">
+        <span class="job-title">Smart Contract Security Researcher</span>
+        <span class="job-meta">[Sherlock Profile: sovaslava]</span>
+      </div>
+      <ul>
+        <li>
+          Active security researcher participating in competitive protocol
+          audits via the Sherlock, Code4rena, and Cyfrin platforms, utilizing an
+          adversarial exploit-driven mindset to discover and mitigate
+          high-severity logical flaws.
+        </li>
+        <li>
+          Founder and coordinator of an exclusive, private community comprising
+          30+ Web3 security auditors, driving knowledge exchange around complex
+          zero-day vulnerabilities and DeFi primitive attack vectors.
+        </li>
+      </ul>
+    </div>
+
+    <div style="margin-top: 20px">
+      <div class="job-header">
+        <span class="job-title">Hackathons & Web3 Security Milestones</span>
+      </div>
+      <ul>
+        <li>
+          <strong>Chainlink Hackathon Winner:</strong> Secured a top-tier prize
+          for creating AnydataRequester, a project introducing highly secure,
+          tamper-proof multi-oracle data feeds.
+        </li>
+        <li>
+          <strong>QuillAudits CTF Challenge Creator:</strong> Contracted to
+          design, develop, and test highly complex Capture The Flag (CTF)
+          challenges focused on obscure EVM edge cases, used to vet senior-level
+          blockchain engineers and auditors globally.
+        </li>
+        <li>
+          <strong>Statemind Security CTF:</strong> Successfully solved 9 out of
+          10 hyper-advanced smart contract security challenges, receiving an
+          official validation NFT via OpenSea.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

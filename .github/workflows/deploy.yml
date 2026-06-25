@@ -1,0 +1,64 @@
+name: Upgrade Testnet Implementation
+
+on:
+  workflow_dispatch:
+    inputs:
+      beacon_address:
+        description: "Target UpgradeableBeacon address"
+        required: true
+        type: string
+
+jobs:
+  upgrade:
+    name: Deploy & Upgrade
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Run Upgrade script
+        env:
+          PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          BEACON_ADDRESS: ${{ github.event.inputs.beacon_address }}
+        run: |
+          forge script script/UpgradeLedero.s.sol:UpgradeLedero \
+            --rpc-url ${{ secrets.TESTNET_RPC_URL }} \
+            --broadcast \
+            -vvvv
+
+      - name: Verify contract
+        env:
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+          RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
+          BEACON_ADDRESS: ${{ inputs.beacon_address }}
+        run: |
+          IMPL_ADDRESS=$(cat deployed_impl.txt)
+          echo "Verifying Ledero implementation at $IMPL_ADDRESS..."
+
+          for i in {1..3}; do
+            echo "Attempt $i..."
+            
+            if forge verify-contract $IMPL_ADDRESS src/Ledero.sol:Ledero \
+              --rpc-url $RPC_URL \
+              --etherscan-api-key $ETHERSCAN_API_KEY \
+              --watch; then
+              
+              echo "Verification successful!"
+              exit 0 
+            fi
+            
+            echo "Verification failed or Etherscan not synced. Waiting 20 seconds..."
+            sleep 20
+          done
+
+          echo "Verification failed after 3 attempts."
+          exit 1

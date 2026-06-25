@@ -1,0 +1,26 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+ffi = true
+via_ir = true
+optimizer = true
+optimizer_runs = 10000
+solc = "0.8.35"
+evm_version = "cancun" 
+ast = false
+build_info = false
+fs_permissions = [{ access = "read", path = "/dev/stdin" },
+                { access = "read-write", path = "./deployed_impl.txt" }
+]
+
+no_match_path = "test/scripts/*"
+
+[profile.default.fuzz]
+runs = 1000
+
+[profile.pr.fuzz]
+runs = 10000
+
+[profile.merge.fuzz]
+runs = 100000

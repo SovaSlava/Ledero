@@ -1,0 +1,93 @@
+name: PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  linters:
+    name: Code Quality & Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Install detect-secrets
+        run: pip install detect-secrets
+
+      - name: Check for new secrets
+        run: detect-secrets-hook --baseline .secrets.baseline $(git ls-files)
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Run prettier check
+        run: npx prettier --check .
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Check solidity formatting
+        run: forge fmt --check
+
+      - name: Run Solhint
+        run: npx solhint 'src/**/*.sol'
+
+  tests:
+    name: Foundry tests
+    runs-on: ubuntu-latest
+    env:
+      FOUNDRY_PROFILE: pr
+      INCH_API_KEY: ${{ secrets.INCH_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Install Foundry (for forge test)
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install tsx
+        run: npm install -g tsx
+
+      - name: Install Nodejs dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: forge test --match-path "test/unit/*" -vvv
+
+      - name: Check gas snapshot tolerance
+        run: forge snapshot --match-path "test/unit/*" --check --tolerance 5
+
+      - name: Run fuzz tests
+        run: forge test --mp test/fuzzing/LeverageMath.t.sol -vvv
+
+      - name: Run fork tests
+        run: |
+          if [ -z "${{ secrets.MAINNET_RPC_URL }}" ] || [ -z "${{ secrets.INCH_API_KEY }}" ]; then
+            echo "::warning:: Fork tests skipped because secrets (MAINNET_RPC_URL or INCH_API_KEY) are missing. This is expected for external Fork PRs."
+            exit 0
+          fi
+
+          forge test --ffi --mp test/fork/Ledero.t.sol -vvv --fork-url ${{ secrets.MAINNET_RPC_URL }}
